@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from datetime import date
@@ -16,7 +16,9 @@ from dotenv import load_dotenv
 
 login_manager = LoginManager()
 app = Flask(__name__)
-load_dotenv("100days_Py_Class/EnvironmentVariables/.env")
+load_dotenv("/Users/norm/Library/CloudStorage/GoogleDrive-n.beck10010@gmail.com/My Drive/100days_Py_Class/EnvironmentVariables/ENVIRON.env")
+
+
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap(app)
@@ -240,5 +242,5 @@ def delete_post(post_id):
 
 
 if __name__ == "__main__":
-    # app.run(host='0.0.0.0', port=8080, debug=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True)
