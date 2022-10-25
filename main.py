@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 
 login_manager = LoginManager()
 app = Flask(__name__)
-load_dotenv("/Users/norm/Library/CloudStorage/GoogleDrive-n.beck10010@gmail.com/My Drive/100days_Py_Class/EnvironmentVariables/ENVIRON.env")
+load_dotenv("ENVIRON.env")
 
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
@@ -242,5 +242,5 @@ def delete_post(post_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080)
     # app.run(host='0.0.0.0', port=5000, debug=True)
