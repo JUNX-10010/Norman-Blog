@@ -34,7 +34,7 @@ gravatar = Gravatar(app,
                     base_url=None)
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL","sqlite:///blog.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -199,7 +199,7 @@ def add_new_post():
             subtitle=form.subtitle.data,
             body=form.body.data,
             img_url=form.img_url.data,
-            author=author,  # Users.query.get(name=current_user),  #
+            author=author,
             date=date.today().strftime("%B %d, %Y")
         )
         db.session.add(new_post)
