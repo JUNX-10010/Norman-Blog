@@ -106,6 +106,7 @@ class NewsData:
         self.body = data["content"]
         self.img_url = data["image_url"]
         self.link = data["link"]
+        self.source_id = data["source_id"]
 
 def data_from_api(data):
     for news in data:
@@ -120,7 +121,7 @@ def data_from_api(data):
                 n.body = n.link
 
             if n.author is None:
-                n.author = "unknown"
+                n.author = n.source_id
             if n.subtitle is None:
                 n.subtitle = " "
             format_data = datetime.strptime(n.date.split(" ")[0], "%Y-%m-%d")
