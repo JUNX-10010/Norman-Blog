@@ -130,7 +130,7 @@ def data_from_api(data):
                     subtitle=n.subtitle,
                     body=n.body,
                     img_url=n.img_url,
-                    author_api=n.author[0],
+                    author_api=n.author[::],
                     date=format_data.strftime("%B %d, %Y")
                 )
                 db.session.add(new_post)
