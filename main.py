@@ -76,11 +76,11 @@ class BlogPost(db.Model):
     author_id = Column(Integer, ForeignKey('users.id'))
     author = relationship("Users", back_populates="post")
     author_api = Column(db.String(250), nullable=True)
-    title = db.Column(db.String(250), unique=True, nullable=False)
+    title = db.Column(db.String, unique=True, nullable=False)
     subtitle = db.Column(db.String, nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    img_url = db.Column(db.String(250), nullable=False)
+    img_url = db.Column(db.String, nullable=False)
 
     user_comment = relationship(Comment, back_populates="parent_post")
 
