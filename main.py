@@ -85,7 +85,7 @@ class BlogPost(db.Model):
     user_comment = relationship(Comment, back_populates="parent_post")
 
 
-db.create_all() #update
+# db.create_all() #update
 # Create a function that request new data
 import requests
 
