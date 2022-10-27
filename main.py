@@ -1,8 +1,9 @@
 import os
+from urllib import request
 from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
-from datetime import date
+from datetime import date, datetime
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -17,7 +18,6 @@ from dotenv import load_dotenv
 login_manager = LoginManager()
 app = Flask(__name__)
 load_dotenv(".env")
-
 
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 ckeditor = CKEditor(app)
@@ -34,7 +34,7 @@ gravatar = Gravatar(app,
                     base_url=None)
 
 ##CONNECT TO DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL1","sqlite:///blog.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL1", "sqlite:///blog.db")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -75,6 +75,7 @@ class BlogPost(db.Model):
 
     author_id = Column(Integer, ForeignKey('users.id'))
     author = relationship("Users", back_populates="post")
+    author_api = Column(db.String(250), nullable=True)
     title = db.Column(db.String(250), unique=True, nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
@@ -83,7 +84,58 @@ class BlogPost(db.Model):
 
     user_comment = relationship(Comment, back_populates="parent_post")
 
-# db.create_all()
+
+db.create_all()
+# Create a function that request new data
+import requests
+
+
+def news_data():
+    response = requests.get(
+        " https://newsdata.io/api/1/news?apikey=pub_127452b143b21c7f49132c8059a719e80ef7c&q=cannabis&country=us&language=en")
+    data = response.json()["results"]
+    return data
+
+
+# Class to handle API data
+class NewsData:
+    def __init__(self, data):
+        self.author = data["creator"]
+        self.title = data["title"]
+        self.subtitle = data["description"]
+        self.date = data["pubDate"]
+        self.body = data["content"]
+        self.img_url = data["image_url"]
+        self.link = data["link"]
+
+def data_from_api(data):
+    for news in data:
+        n = NewsData(news)
+        if db.session.query(BlogPost).filter_by(title=n.title).first():
+            continue
+        else:
+            if n.img_url is None:
+                n.img_url = "https://images.unsplash.com/photo-1498671546682-94a232c26d17?ixlib=rb-4.0.3&ixid" \
+                            "=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=898&q=80 "
+            if n.body is None:
+                n.body = n.link
+
+            if n.author is None:
+                n.author = "unknown"
+            format_data = datetime.strptime(n.date.split(" ")[0], "%Y-%m-%d")
+            try:
+                new_post = BlogPost(
+                    title=n.title,
+                    subtitle=n.subtitle,
+                    body=n.body,
+                    img_url=n.img_url,
+                    author_api=n.author[0],
+                    date=format_data.strftime("%B %d, %Y")
+                )
+                db.session.add(new_post)
+                db.session.commit()
+            except:
+                continue
 
 
 def admin_only(func):
@@ -95,9 +147,12 @@ def admin_only(func):
 
     return decorated_function
 
+
 @app.route('/')
 def get_all_posts():
-    posts = BlogPost.query.all()
+    data = news_data()
+    data_from_api(data)
+    posts = BlogPost.query.order_by(BlogPost.date.desc()).all()
     return render_template("index.html", all_posts=posts)
 
 
@@ -162,9 +217,6 @@ def show_post(post_id):
             flash("You need to login or register to comment.")
             return redirect(url_for("login"))
 
-        # Submit and save data to db
-        # comment_author = db.session.query(Users).filter_by(name=current_user.name).first()
-        # comment_post_id = db.session.query(BlogPost).filter_by(id=post_id).first()
         new_comment = Comment(
             post_id=post_id,
             comment_author=current_user,  # or just use current_user.name
@@ -173,10 +225,7 @@ def show_post(post_id):
         )
         db.session.add(new_comment)
         db.session.commit()
-        # return redirect(url_for("show_post", post_id=post_id))
-
-    # comments = Comment.query.filter_by(post_id=post_id).all()
-    return render_template("post.html", post=requested_post, form=form)  # comments=comments
+    return render_template("post.html", post=requested_post, form=form, len=len(requested_post.body))  # comments=comments
 
 
 @app.route("/about")
@@ -195,6 +244,7 @@ def add_new_post():
     form = CreatePostForm()
     if form.validate_on_submit():
         author = db.session.query(Users).filter_by(name=current_user.name).first()
+
         new_post = BlogPost(
             title=form.title.data,
             subtitle=form.subtitle.data,
@@ -242,6 +292,8 @@ def delete_post(post_id):
     return redirect(url_for('get_all_posts'))
 
 
+# todo: Create a function to delete comments
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
     # app.run(host='0.0.0.0', port=8080,debug=True)
