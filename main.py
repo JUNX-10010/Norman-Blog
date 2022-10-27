@@ -76,16 +76,16 @@ class BlogPost(db.Model):
     author_id = Column(Integer, ForeignKey('users.id'))
     author = relationship("Users", back_populates="post")
     author_api = Column(db.String(250), nullable=True)
-    title = db.Column(db.String, unique=True, nullable=False)
+    title = db.Column(db.String, unique=True, nullable=True)
     subtitle = db.Column(db.String, nullable=True)
     date = db.Column(db.String(250), nullable=False)
-    body = db.Column(db.Text, nullable=False)
-    img_url = db.Column(db.String, nullable=False)
+    body = db.Column(db.Text, nullable=True)
+    img_url = db.Column(db.String, nullable=True)
 
     user_comment = relationship(Comment, back_populates="parent_post")
 
 
-db.create_all() #update
+# db.create_all() #update
 # Create a function that request new data
 import requests
 
