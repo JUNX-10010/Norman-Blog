@@ -37,6 +37,19 @@ a {
 a:focus, a:hover {
   color: #0085A1;
 }
+a.article_link{
+  color: limegreen;
+  text-decoration: underline;
+  transition: all 0.2s;
+}
+
+a.article_link:hover {
+  color: #0085A1;
+}
+
+a.article_link:active {
+  text-decoration: underline;
+}
 
 blockquote {
   font-style: italic;
