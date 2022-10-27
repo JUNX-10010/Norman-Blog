@@ -91,8 +91,7 @@ import requests
 
 
 def news_data():
-    response = requests.get(
-        " https://newsdata.io/api/1/news?apikey=pub_127452b143b21c7f49132c8059a719e80ef7c&q=cannabis&country=us&language=en")
+    response = requests.get(os.getenv("NEWS_API"))
     data = response.json()["results"]
     return data
 
